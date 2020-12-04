@@ -6,23 +6,25 @@ from configparser import ConfigParser
 import requests
 from bs4 import BeautifulSoup
 
-login    = 'https://ssl.syosetu.com/login/login/'
-top      = "https://syosetu.com/"
+login = 'https://ssl.syosetu.com/login/login/'
+top = "https://syosetu.com/"
 bookmark = "https://syosetu.com/favnovelmain/list/"
-query    = "https://syosetu.com/favnovelmain/list/index.php"
+query = "https://syosetu.com/favnovelmain/list/index.php"
 
 
 config = ConfigParser()
 config.read('config.ini')
 payload = {"narouid": config['DEFAULT']
            ['narouid'], "pass": config['DEFAULT']['pass']}
-print(payload)
+# print(payload)
 
 ua = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Mobile Safari/537.36"
 headers = {"User-Agent": ua}
 
 
 class SyosetsuInfoDict(UserDict):
+    "data: これが本体"
+
     def __init__(self, __ncode: str, __title: str, __total) -> None:
         super().__init__(ncode=__ncode, title=__title,  total=__total)
 
@@ -73,10 +75,10 @@ def get_all_bookmark():
             ncodes += [content.get('href')[26:-2] for content in contents]
             totals += [l.split('/')[-2] for l in query_with_story]
 
-            return sorted(list(dict(SyosetsuInfoDict(ncode, title, total))
-                               for ncode, title, total
-                               in zip(ncodes, titles, totals)),
-                          key=lambda x: x['ncode'])
+    return sorted([SyosetsuInfoDict(ncode, title, total).data
+                   for ncode, title, total
+                   in zip(ncodes, titles, totals)],
+                  key=lambda x: x['ncode'])
 
 
 if __name__ == "__main__":
